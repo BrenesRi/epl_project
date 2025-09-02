@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: premier_league
+    database: premier_league 
+    schema: public             
+    tables:
+      - name: raw_matches

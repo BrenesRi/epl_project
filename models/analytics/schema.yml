@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: team_season_results
+    description: "Resultados por equipo y temporada con wins/draws/losses"
+    columns:
+      - name: wins
+        description: "Número de victorias por temporada"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: draws
+        description: "Número de empates por temporada"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: losses
+        description: "Número de derrotas por temporada"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
