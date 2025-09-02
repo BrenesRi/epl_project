@@ -2,26 +2,69 @@ version: 2
 
 models:
   - name: team_season_results
-    description: "Resultados por equipo y temporada con wins/draws/losses"
+    description: "Team results per season, including number of wins, draws, and losses."
     columns:
+      - name: team
+        description: "Team name"
+        tests:
+          - not_null
+      - name: season
+        description: "Season (e.g. 1993/94)"
+        tests:
+          - not_null
       - name: wins
-        description: "Número de victorias por temporada"
+        description: "Number of wins per season"
         tests:
           - not_null
           - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
+              min_value: 0
       - name: draws
-        description: "Número de empates por temporada"
+        description: "Number of draws per season"
         tests:
           - not_null
           - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
+              min_value: 0
       - name: losses
-        description: "Número de derrotas por temporada"
+        description: "Number of losses per season"
         tests:
           - not_null
           - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
+              min_value: 0
+
+  - name: team_home_away_performance
+    description: "Team performance by season, comparing home and away wins and win percentages."
+    columns:
+      - name: team
+        description: "Team name"
+        tests:
+          - not_null
+      - name: season_str
+        description: "Season (e.g. 1993/94)"
+        tests:
+          - not_null
+      - name: home_wins
+        description: "Number of home wins per season"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: away_wins
+        description: "Number of away wins per season"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: home_win_pct
+        description: "Proportion of wins at home (0–1 scale)"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: away_win_pct
+        description: "Proportion of wins away (0–1 scale)"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
