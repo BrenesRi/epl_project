@@ -1,10 +1,12 @@
 -- models/analytics/team_season_results.sql
+
 with matches as (
     select *
     from {{ ref('stg_matches') }}
 ),
 
 results as (
+    -- Home matches
     select
         home_team as team,
         season_str as season,
@@ -16,6 +18,7 @@ results as (
 
     union all
 
+    -- Away matches
     select
         away_team as team,
         season_str as season,
@@ -24,13 +27,26 @@ results as (
         sum(case when ft_result = 'H' then 1 else 0 end) as losses
     from matches
     group by away_team, season_str
+),
+
+aggregated as (
+    select
+        team,
+        season,
+        sum(wins) as wins,
+        sum(draws) as draws,
+        sum(losses) as losses
+    from results
+    group by team, season
 )
 
 select
     team,
     season,
-    sum(wins) as wins,
-    sum(draws) as draws,
-    sum(losses) as losses
-from results
-group by team, season
+    -- numeric year to allow proper sorting in Power BI
+    cast(left(season, 4) as int) as season_start_year,
+    season as season_display,
+    wins,
+    draws,
+    losses
+from aggregated
