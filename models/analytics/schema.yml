@@ -1,0 +1,278 @@
+version: 2
+
+models:
+  - name: team_season_results
+    description: "Team results per season, including number of wins, draws, and losses."
+    config:
+      materialized: table
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [team, season]
+    columns:
+      - name: team
+        description: "Team name"
+        tests: [not_null]
+      - name: season
+        description: "Season (e.g. 1993/94)"
+        tests: [not_null]
+      - name: wins
+        description: "Number of wins per season"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 38}
+      - name: draws
+        description: "Number of draws per season"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 38}
+      - name: losses
+        description: "Number of losses per season"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 38}
+
+  - name: team_home_away_performance
+    description: "Team performance by season, comparing home and away wins and win percentages."
+    config:
+      materialized: table
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [team, season]
+    columns:
+      - name: team
+        description: "Team name"
+        tests: [not_null]
+      - name: season
+        description: "Season (e.g. 1993/94)"
+        tests: [not_null]
+      - name: home_wins
+        description: "Number of home wins"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 19}
+      - name: away_wins
+        description: "Number of away wins"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 19}
+      - name: home_win_pct
+        description: "Percentage of home games won"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 100}
+      - name: away_win_pct
+        description: "Percentage of away games won"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 100}
+
+  - name: match_goal_distribution
+    description: "Distribution of goals scored per match, categorized as 0, 1, 2, or 3+ goals."
+    config:
+      materialized: view
+    columns:
+      - name: goal_category
+        description: "Goal category (0, 1, 2, 3+)"
+        tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: ['0', '1', '2', '3+']}
+      - name: matches_count
+        description: "Number of matches in this goal category"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: percentage
+        description: "Percentage of matches in this goal category"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 100}
+
+  - name: team_cards
+    description: "Yellow and red cards received by teams per season."
+    config:
+      materialized: table
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [team, season]
+    columns:
+      - name: team
+        description: "Team name"
+        tests: [not_null]
+      - name: season
+        description: "Season (e.g. 1993/94)"
+        tests: [not_null]
+      - name: yellow_cards
+        description: "Number of yellow cards received"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: red_cards
+        description: "Number of red cards received"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+
+  - name: team_fouls_results
+    description: "Analysis of team fouls and their correlation with match results."
+    config:
+      materialized: table
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [team, season, result]
+    columns:
+      - name: team
+        description: "Team name"
+        tests: [not_null]
+      - name: season
+        description: "Season (e.g. 1993/94)"
+        tests: [not_null]
+      - name: avg_fouls
+        description: "Average number of fouls per match"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: result
+        description: "Match result (Win/Draw/Loss)"
+        tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: ['Win', 'Draw', 'Loss']}
+
+  - name: referee_bias
+    description: "Analysis of potential referee bias towards home or away teams."
+    config:
+      materialized: table
+    columns:
+      - name: referee_name
+        description: "Referee name"
+        tests: [not_null, unique]
+      - name: home_win_pct
+        description: "Percentage of matches won by home team"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 1}
+      - name: away_win_pct
+        description: "Percentage of matches won by away team"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 1}
+
+  - name: referee_cards
+    description: "Analysis of cards given by each referee."
+    config:
+      materialized: table
+    columns:
+      - name: referee_name
+        description: "Referee name"
+        tests: [not_null, unique]
+      - name: avg_yellow_cards
+        description: "Average number of yellow cards per match"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: avg_red_cards
+        description: "Average number of red cards per match"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+
+  - name: team_kpis
+    description: "Key performance indicators for teams per season."
+    config:
+      materialized: table
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [team, season]
+    columns:
+      - name: team
+        description: "Team name"
+        tests: [not_null]
+      - name: season
+        description: "Season (e.g. 1993/94)"
+        tests: [not_null]
+      - name: avg_goals_for
+        description: "Average goals scored per match"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: avg_goals_against
+        description: "Average goals conceded per match"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: avg_shots_on_target
+        description: "Average shots on target per match"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: avg_yellow_cards
+        description: "Average yellow cards per match"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: avg_red_cards
+        description: "Average red cards per match"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+      - name: avg_fouls
+        description: "Average fouls committed per match"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0}
+
+  - name: team_win_probability
+    description: "Historical win probabilities for teams in home and away matches."
+    config:
+      materialized: table
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [team, season]
+    columns:
+      - name: team
+        description: "Team name"
+        tests: [not_null]
+      - name: season
+        description: "Season (e.g. 1993/94)"
+        tests: [not_null]
+      - name: home_win_prob
+        description: "Probability of winning home games"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 1}
+      - name: away_win_prob
+        description: "Probability of winning away games"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments: {min_value: 0, max_value: 1}
