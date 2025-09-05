@@ -1,4 +1,5 @@
--- models/analytics/team_fouls_results.sql
+{{ config(materialized='table') }}
+
 with matches as (
     select *
     from {{ ref('stg_matches') }}
@@ -34,4 +35,4 @@ away as (
 
 select * from home
 union all
-select * from away;
+select * from away

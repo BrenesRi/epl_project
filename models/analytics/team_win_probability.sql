@@ -1,4 +1,5 @@
--- models/analytics/team_win_probability.sql
+{{ config(materialized='table') }}
+
 with matches as (
     select *
     from {{ ref('stg_matches') }}
@@ -29,4 +30,4 @@ select
     coalesce(a.away_win_prob, 0) as away_win_prob
 from home h
 full outer join away a
-    on h.season = a.season and h.team = a.team;
+    on h.season = a.season and h.team = a.team

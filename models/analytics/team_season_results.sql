@@ -1,4 +1,4 @@
--- models/analytics/team_season_results.sql
+{{ config(materialized='table') }}
 
 with matches as (
     select *

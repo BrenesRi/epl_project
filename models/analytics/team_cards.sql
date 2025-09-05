@@ -1,4 +1,5 @@
--- models/analytics/team_cards.sql
+{{ config(materialized='table') }}
+
 with matches as (
     select *
     from {{ ref('stg_matches') }}
@@ -32,4 +33,5 @@ select
 from home_cards h
 full outer join away_cards a
     on h.season = a.season
-   and h.team = a.team;
+   and h.team = a.team
+    and h.team = a.team

@@ -1,4 +1,5 @@
--- models/analytics/team_kpis.sql
+{{ config(materialized='table') }}
+
 with matches as (
     select *
     from {{ ref('stg_matches') }}
@@ -43,4 +44,4 @@ select
     coalesce(h.avg_fouls, 0) + coalesce(a.avg_fouls, 0) as avg_fouls
 from home h
 full outer join away a
-    on h.season = a.season and h.team = a.team;
+    on h.season = a.season and h.team = a.team

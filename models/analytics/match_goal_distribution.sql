@@ -1,4 +1,5 @@
--- models/analytics/match_goal_distribution.sql
+{{ config(materialized='view') }}
+
 with matches as (
     select *
     from {{ ref('stg_matches') }}
@@ -16,4 +17,4 @@ select
         when (fth_goals + fta_goals) = 2 then '2'
         else '3+'
     end as goal_category
-from matches;
+    from matches

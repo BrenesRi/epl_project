@@ -1,5 +1,6 @@
-with matches as (
+{{ config(materialized='table') }}
 
+with matches as (
     select *
     from {{ ref('stg_matches') }}
 
